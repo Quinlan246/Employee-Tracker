@@ -42,6 +42,7 @@ const promptUser = () => {
                 'Delete a department',
                 'Delete a role',
                 'Delete an employee',
+                'View department budgets',
                 'Exit'
             ]
         }
@@ -90,6 +91,10 @@ const promptUser = () => {
 
         if (choices === 'Delete an employee') {
             deleteEmployee()
+        }
+
+        if (choices === 'View department budgets') {
+            viewBudget()
         }
 
         if (choices === 'Exit') {
@@ -316,12 +321,122 @@ addEmployee = () => {
     });
 };
 
-// updateEmployee()
+updateEmployee = () => {
+    const employeeSql = `SELECT * FROM employee`;
 
-// updateManager()
+    Connection.query(employeeSql, (err, data) => {
+        if (err) throw err;
 
+        const employees = data.map(({ id, first_name, last_name}) => ({name: first_name + ' '+ last_name, value: id}));
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'name',
+                message: 'Which employee woould you like to update?',
+                choices: employees
+            }
+        ]).then(employeeChoice => {
+            const employee = employeeChoice.name;
+            const params = [];
+            params.push(employee);
+
+            const roleSql = `SELECT * FROM role`;
+            
+            Connection.query(roleSql, (err, data) => {
+                if(err) throw err;
+
+                const roles = data.map(({ id, title}) => ({ name: title, value: id}));
+
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'role',
+                        message: 'What is the employees new role?',
+                        choices: roles
+                    }
+                ]).then(roleChoice => {
+                    const role = roleChoice.role;
+                    params.push(role);
+
+                    let employee = params[0]
+                    params[0] = role
+                    params[1] = employee
+
+                    const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+
+                    Connection.query(sql, params, (err, res) => {
+                        if(err) throw err;
+                        console.log('Employee has been updated');
+
+                    showEmployees();
+
+                    });
+                });
+            });
+        });
+    });
+};
+
+updateManager = () => {
+    const employeeSql = `SELECT * FROM employee`;
+
+    Connection.query(employeeSql, (err, data) => {
+        if (err) throw err;
+
+        const employees = data.map(({ id, first_name, last_name}) => ({name: first_name + ' '+ last_name, value: id}));
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'name',
+                message: 'Which employee woould you like to update?',
+                choices: employees
+            }
+        ]).then(employeeChoice => {
+            const employee = employeeChoice.name;
+            const params = [];
+            params.push(employee);
+
+            const managerSql = `SELECT * FROM employee`;
+
+            Connection.query(managerSql, (err, data) => {
+
+                const managers = data.map(({ id, first_name, last_name}) => ({name: first_name + ' '+ last_name, value: id}));
+
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'manager',
+                        message: 'Who is the employees manager?',
+                        choices: managers
+                    }
+                ]).then(managerChoice => {
+                    const manager = managerChoice.manager;
+                    params.push(manager);
+
+                    let employee = params[0]
+                    params[0] = manager
+                    params[1] = employee
+
+                    const sql = `UPDATE employee SET manager_id = ? WHERE id = ?`;
+                    Connection.query(sql, params, (err, res) => {
+                        if(err) throw err;
+                            console.log('Employee has been updated');
+
+                    showEmployees();
+
+                    });
+                });
+            });
+        });
+    });
+};
+        
 // deleteDepartment()
 
 // deleteRole() 
 
 // deleteEmployee()
+
+// viewBudget()
