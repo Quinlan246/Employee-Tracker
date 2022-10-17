@@ -1,6 +1,18 @@
-const inquirer = require('inquirer')
+const inquirer = require('inquirer');
 const cTable = require('console.table');
-const Connection = require('mysql2/typings/mysql/lib/Connection');
+const mysql = require('mysql2');
+
+require('dotenv').config();
+
+const Connection = mysql.createConnection(
+    {
+    user: 'root',
+    password: process.env.DB_PASSWORD,
+    database: 'employee_db',
+    host: 'localhost',
+    },
+    console.log('connected to the employee database')
+);
 
 const promptUser = () => {
     inquirer.prompt ([
@@ -122,18 +134,18 @@ showEmployees = () => {
     });
 };
 
-addDepartment()
+// addDepartment()
 
-addRole()
+// addRole()
 
-addEmployee()
+// addEmployee()
 
-updateEmployee()
+// updateEmployee()
 
-updateManager()
+// updateManager()
 
-deleteDepartment()
+// deleteDepartment()
 
-deleteRole() 
+// deleteRole() 
 
-deleteEmployee()
+// deleteEmployee()
