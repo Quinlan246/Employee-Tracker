@@ -433,10 +433,106 @@ updateManager = () => {
     });
 };
         
-// deleteDepartment()
+deleteDepartment = () => {
+    const deptSql = `SELECT * FROM department`;
 
-// deleteRole() 
+    Connection.query(deptSql, (err, data) => {
+        if(err) throw err;
 
-// deleteEmployee()
+        const dept = data.map(({ name, id}) => ({ name: name, value: id}));
 
-// viewBudget()
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'dept',
+                message: 'What department do you wish to delete?',
+                choices: dept
+            }
+        ]).then(deptChoice => {
+            const dept = deptChoice.dept;
+            const sql = `DELETE FROM department WHERE id = ?`;
+
+            Connection.query(sql, dept, (err, res) => {
+                if(err) throw err;
+                console.log('Successfully deleted');
+
+                showDepartments();
+            });
+        });
+    });
+};
+
+deleteRole = () => {
+    const roleSql = `SELECT * FROM role`;
+
+    Connection.query(roleSql, (err, data) => {
+        if(err) throw err;
+
+        const role = data.map(({ title, id}) => ({ name: title, value: id}));
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'role',
+                message: 'What role do you want to delete?',
+                choices: role
+            }
+        ]).then(roleChoice => {
+            const role = roleChoice.role;
+            const sql = `DELETE FROM role WHERE id = ?`;
+
+            Connection.query(sql, role, (err, res) => {
+                if(err) throw err;
+                console.log('Successfully deleted');
+
+                showRoles();
+            });
+        });
+    });
+};
+
+deleteEmployee = () => {
+    const employeeSql = `SELECT * FROM employee`;
+
+    Connection.query(employeeSql, (err, data) => {
+        if(err) throw err;
+
+        const employees = data.map(({ id, first_name, last_name }) => ({ name: first_name + ' '+ last_name, value: id}));
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'name',
+                message: 'Which employee would you like to delete?',
+                choices: employees
+            }
+        ]).then(employeeChoice => {
+            const employee = employeeChoice.name;
+            const sql = `DELETE FROM employee WHERE id = ?`;
+
+            Connection.query(sql, employee, (err, res) => {
+                if(err) throw err;
+                console.log('Successfully deleted');
+
+                showEmployees();
+            });
+        });
+    });
+};
+
+viewBudget = () => {
+    console.log('Showing department budgets...\n');
+
+    const sql = `SELECT department_id AS id,
+                department.name AS department,
+                SUM(salary) AS budget
+                FROM role
+                JOIN department ON role.department_id = department.id GROUP BY department_id`;
+
+        Connection.query(sql, (err, rows) => {
+            if(err) throw err;
+            console.table(rows);
+
+            promptUser();
+        });
+};
